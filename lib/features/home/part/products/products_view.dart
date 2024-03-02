@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../core/services/network_service.dart';
 import '../../../../core/widgets/loader.dart';
 import '../../../../core/widgets/my_text_field.dart';
+import '../../../../injection_container.dart';
 import 'bloc/products_view_bloc.dart';
 
 class ProductsView extends StatefulWidget {
@@ -26,7 +28,8 @@ class _ProductsViewState extends State<ProductsView> {
   Widget build(BuildContext context) {
     return BlocProvider<ProductsViewBloc>(
       create: (BuildContext context) =>
-          ProductsViewBloc()..add(LoadProductsEvent()),
+          ProductsViewBloc(networkService: getIt<NetworkService>())
+            ..add(LoadProductsEvent()),
       child: Container(
         color: Colors.grey[100],
         child: BlocBuilder<ProductsViewBloc, ProductsViewState>(

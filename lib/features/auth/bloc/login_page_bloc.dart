@@ -35,7 +35,6 @@ class LoginPageBloc extends Bloc<LoginPageEvent, LoginPageState> {
               getIt<NetworkService>().currentUser =
                   UserModel.fromJson(value as Map<String, dynamic>)
             });
-
     if (getIt<NetworkService>().currentUser != null) {
       await getIt<SecureStorage>().addString(username, event.username);
       await getIt<SecureStorage>().addString(password, event.password);

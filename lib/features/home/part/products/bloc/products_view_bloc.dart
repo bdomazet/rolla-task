@@ -8,27 +8,30 @@ import '../../../../../core/const/const.dart';
 import '../../../../../core/enums/my_http_method.dart';
 import '../../../../../core/models/products_model.dart';
 import '../../../../../core/services/network_service.dart';
-import '../../../../../injection_container.dart';
 
 part 'products_view_event.dart';
 part 'products_view_state.dart';
 
 class ProductsViewBloc extends Bloc<ProductsViewEvent, ProductsViewState> {
-  ProductsViewBloc() : super(ProductsViewInitialState()) {
+  ProductsViewBloc({required this.networkService})
+      : super(ProductsViewInitialState()) {
     on<LoadProductsEvent>(onLoadProducts);
     on<ReloadAllProductsEvent>(onReloadAllProductsEvent);
-    on<SearchProducts>(onSearchProducts,
-        transformer: (Stream<SearchProducts> event, mapper) {
+    on<SearchProducts>(onSearchProducts, transformer:
+        (Stream<SearchProducts> event,
+            Stream<SearchProducts> Function(SearchProducts) mapper) {
       return event
           .debounceTime(const Duration(milliseconds: 500))
           .asyncExpand(mapper);
     });
   }
 
+  NetworkService networkService;
+
   FutureOr<void> onLoadProducts(
       LoadProductsEvent event, Emitter<ProductsViewState> emit) async {
     ProductModel? productModel;
-    await getIt<NetworkService>()
+    await networkService
         .httpRequest(url: '$baseURL/auth/products', method: MyHttpMethod.get)
         .then((dynamic value) {
       productModel = ProductModel.fromJson(value as Map<String, dynamic>);
@@ -47,7 +50,7 @@ class ProductsViewBloc extends Bloc<ProductsViewEvent, ProductsViewState> {
       SearchProducts event, Emitter<ProductsViewState> emit) async {
     emit(LoaderState());
     ProductModel? productModel;
-    await getIt<NetworkService>()
+    await networkService
         .httpRequest(
             url: '$baseURL/auth/products/search?q=${event.searchInput}',
             method: MyHttpMethod.get)
