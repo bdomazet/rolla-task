@@ -72,12 +72,11 @@ class _LoginPageState extends State<LoginPage> {
                     MyButton(
                       buttonText: 'Sign in',
                       onTap: () {
-                        BlocProvider.of<LoginPageBloc>(context)
-                            .add(LogMeInEvent(
-                          username: usernameController.text,
-                          password: passwordController.text,
-                          expiresInMins: '10',
-                        ));
+                        context.read<LoginPageBloc>().add(LogMeInEvent(
+                              username: usernameController.text,
+                              password: passwordController.text,
+                              expiresInMins: '10',
+                            ));
                         // Navigator.pushNamed(context, '/homepage');
                       },
                     ),

@@ -58,10 +58,9 @@ class HomePage extends StatelessWidget {
         bottomNavigationBar: BlocBuilder<HomePageBloc, HomePageState>(
           builder: (BuildContext context, HomePageState state) {
             return NavBar(onPressedProductsTab: () {
-              BlocProvider.of<HomePageBloc>(context)
-                  .add(ProductsTabPressedEvent());
+              context.read<HomePageBloc>().add(ProductsTabPressedEvent());
             }, onPressedLogTab: () {
-              BlocProvider.of<HomePageBloc>(context).add(LogTabPressedEvent());
+              context.read<HomePageBloc>().add(LogTabPressedEvent());
             });
           },
         ),
