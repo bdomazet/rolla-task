@@ -20,7 +20,7 @@ class RollaTask extends StatelessWidget {
     return MultiBlocProvider(
       providers: <BlocProvider<dynamic>>[
         BlocProvider<LoginPageBloc>(
-          create: (BuildContext context) => LoginPageBloc(),
+          create: (BuildContext context) => getIt<LoginPageBloc>(),
         ),
       ],
       child: ScreenUtilInit(

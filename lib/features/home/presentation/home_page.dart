@@ -20,7 +20,10 @@ class HomePage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           leading: const SizedBox.shrink(),
-          title: const Text('GoogleNavBar'),
+          title: Text(
+            'Rolla Task',
+            style: TextStyle(color: Colors.grey[700]),
+          ),
           elevation: 0,
           backgroundColor: Colors.grey[100],
           actions: <Widget>[

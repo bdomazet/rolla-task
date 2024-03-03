@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../../core/services/network_service.dart';
 import '../../../../core/widgets/loader.dart';
 import '../../../../core/widgets/my_text_field.dart';
 import '../../../../injection_container.dart';
@@ -28,8 +27,7 @@ class _ProductsViewState extends State<ProductsView> {
   Widget build(BuildContext context) {
     return BlocProvider<ProductsViewBloc>(
       create: (BuildContext context) =>
-          ProductsViewBloc(networkService: getIt<NetworkService>())
-            ..add(LoadProductsEvent()),
+          getIt<ProductsViewBloc>()..add(LoadProductsEvent()),
       child: Container(
         color: Colors.grey[100],
         child: BlocBuilder<ProductsViewBloc, ProductsViewState>(
@@ -71,11 +69,17 @@ class _ProductsViewState extends State<ProductsView> {
                             children: <Widget>[
                               ListTile(
                                 leading: Text(
-                                    '${state.productModel?.products?[index].id}'),
+                                  '${state.productModel?.products?[index].id}',
+                                  style: TextStyle(color: Colors.grey[900]),
+                                ),
                                 title: Text(
-                                    '${state.productModel?.products?[index].title}'),
+                                  '${state.productModel?.products?[index].title}',
+                                  style: TextStyle(color: Colors.grey[800]),
+                                ),
                                 subtitle: Text(
-                                    '${state.productModel?.products?[index].brand}'),
+                                  '${state.productModel?.products?[index].brand}',
+                                  style: TextStyle(color: Colors.grey[700]),
+                                ),
                               ),
                               Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 25.w),
