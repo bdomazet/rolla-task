@@ -36,54 +36,57 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[300],
-      body: SafeArea(
-        child: Center(
-          child: BlocConsumer<LoginPageBloc, LoginPageState>(
-            listener: (BuildContext context, LoginPageState state) {
-              if (state is LogInSuccessfulState) {
-                Navigator.pushNamed(context, '/homepage');
-              }
-              if (state is LogInUnsuccessfulState) {
-                displaySnackBar(context, message: 'Something went wrong');
-              }
-            },
-            builder: (BuildContext context, LoginPageState state) {
-              return SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    SvgPicture.asset(
-                      rollaLogo,
-                      width: 255.w,
-                    ),
-                    SizedBox(height: 40.h),
-                    MyTextField(
-                      controller: usernameController,
-                      hintText: 'Username',
-                    ),
-                    SizedBox(height: 20.h),
-                    MyTextField(
-                        controller: passwordController,
-                        hintText: 'Password',
-                        obscureText: true),
-                    SizedBox(height: 20.h),
-                    MyButton(
-                      buttonText: 'Sign in',
-                      onTap: () {
-                        context.read<LoginPageBloc>().add(LogMeInEvent(
-                              username: usernameController.text,
-                              password: passwordController.text,
-                              expiresInMins: '10',
-                            ));
-                        // Navigator.pushNamed(context, '/homepage');
-                      },
-                    ),
-                  ],
-                ),
-              );
-            },
+    return PopScope(
+      onPopInvoked: (_) async => false,
+      child: Scaffold(
+        backgroundColor: Colors.grey[300],
+        body: SafeArea(
+          child: Center(
+            child: BlocConsumer<LoginPageBloc, LoginPageState>(
+              listener: (BuildContext context, LoginPageState state) {
+                if (state is LogInSuccessfulState) {
+                  Navigator.pushNamed(context, '/homepage');
+                }
+                if (state is LogInUnsuccessfulState) {
+                  displaySnackBar(context, message: 'Something went wrong');
+                }
+              },
+              builder: (BuildContext context, LoginPageState state) {
+                return SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      SvgPicture.asset(
+                        rollaLogo,
+                        width: 255.w,
+                      ),
+                      SizedBox(height: 40.h),
+                      MyTextField(
+                        controller: usernameController,
+                        hintText: 'Username',
+                      ),
+                      SizedBox(height: 20.h),
+                      MyTextField(
+                          controller: passwordController,
+                          hintText: 'Password',
+                          obscureText: true),
+                      SizedBox(height: 20.h),
+                      MyButton(
+                        buttonText: 'Sign in',
+                        onTap: () {
+                          context.read<LoginPageBloc>().add(LogMeInEvent(
+                                username: usernameController.text,
+                                password: passwordController.text,
+                                expiresInMins: '10',
+                              ));
+                          // Navigator.pushNamed(context, '/homepage');
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
