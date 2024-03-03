@@ -20,3 +20,19 @@ class LoaderState extends ProductsViewState {
   @override
   List<Object?> get props => <Object>[];
 }
+
+class AddMoreProductPartsState extends ProductsViewState {
+  const AddMoreProductPartsState(
+      {required this.productModel, required this.nextPageKey});
+  final int nextPageKey;
+  final ProductModel? productModel;
+  @override
+  List<Object?> get props => <Object>[];
+}
+
+class LastPartProductState extends ProductsViewState {
+  const LastPartProductState({required this.productModel});
+  final ProductModel? productModel;
+  @override
+  List<Object?> get props => <Object>[];
+}

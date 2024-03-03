@@ -4,7 +4,7 @@ abstract class LogViewEvent extends Equatable {
   const LogViewEvent();
 }
 
-class LoadViewEvent extends LogViewEvent {
+class LoadLogViewDataEvent extends LogViewEvent {
   @override
   List<Object?> get props => <Object>[];
 }

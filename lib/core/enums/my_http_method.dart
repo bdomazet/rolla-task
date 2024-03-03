@@ -1,1 +1,1 @@
-enum MyHttpMethod { get, post, put }
+enum MyHttpMethod { get, post, put, getLargeFile }

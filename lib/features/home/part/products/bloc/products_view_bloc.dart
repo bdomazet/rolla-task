@@ -32,18 +32,29 @@ class ProductsViewBloc extends Bloc<ProductsViewEvent, ProductsViewState> {
       LoadProductsEvent event, Emitter<ProductsViewState> emit) async {
     ProductModel? productModel;
     await networkService
-        .httpRequest(url: '$baseURL/auth/products', method: MyHttpMethod.get)
+        .httpRequest(
+            url: '$baseURL/auth/products?limit=$pageSize&skip=${event.skip}',
+            method: MyHttpMethod.get)
         .then((dynamic value) {
       productModel = ProductModel.fromJson(value as Map<String, dynamic>);
     });
-    if (productModel != null) {
-      emit(ProductsLoadedState(productModel: productModel));
+    if (productModel?.products != null &&
+        productModel?.products?.length != null) {
+      final int productModelLength = productModel?.products?.length ?? 0;
+      final bool isLastPage = productModelLength < pageSize;
+      final int nextPageKey = event.pageKey + productModel!.products!.length;
+      if (isLastPage) {
+        emit(LastPartProductState(productModel: productModel));
+      } else {
+        emit(AddMoreProductPartsState(
+            productModel: productModel, nextPageKey: nextPageKey));
+      }
     }
   }
 
   FutureOr<void> onReloadAllProductsEvent(
       ReloadAllProductsEvent event, Emitter<ProductsViewState> emit) {
-    add(LoadProductsEvent());
+    add(const LoadProductsEvent(limit: pageSize, skip: 0, pageKey: 0));
   }
 
   FutureOr<void> onSearchProducts(

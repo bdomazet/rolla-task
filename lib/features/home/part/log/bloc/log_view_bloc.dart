@@ -1,51 +1,97 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:isolate';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
+import '../../../../../core/const/const.dart';
+import '../../../../../core/enums/my_http_method.dart';
 import '../../../../../core/models/log_model.dart';
+import '../../../../../core/services/network_service.dart';
 
 part 'log_view_event.dart';
 part 'log_view_state.dart';
 
 class LogViewBloc extends Bloc<LogViewEvent, LogViewState> {
-  LogViewBloc() : super(LogViewInitialState()) {
-    on<LoadViewEvent>(onLoadViewEvent);
+  LogViewBloc({required this.networkService}) : super(LogViewInitialState()) {
+    on<LoadLogViewDataEvent>(onLoadViewEvent);
   }
+
+  NetworkService networkService;
 
   FutureOr<void> onLoadViewEvent(
       LogViewEvent event, Emitter<LogViewState> emit) async {
     emit(LoaderState());
-    // List<LogModel?> logModel;
-    // final Dio dio = Dio();
-    // await dio
-    //     .get(
-    //   largeJsonURL,
-    // )
-    //     .then((dynamic value) {
-    //   // final Map<String, dynamic> valueMap = value as Map<String, dynamic>;
-    //   logModel = parseJson(logModel) as List<LogModel?>;
-    //   if (logModel != null) {
-    //     print(logModel?.actor);
-    //   }
-    // });
+    final RootIsolateToken? rootIsolateToken = RootIsolateToken.instance;
+    if (rootIsolateToken == null) {
+      print('Cannot get the RootIsolateToken');
+      return;
+    }
 
-    // await getIt<NetworkService>()
-    //     .httpRequest(url: largeJsonURL, method: MyHttpMethod.get)
-    //     .then((dynamic value) {
-    //   // final Map<String, dynamic> valueMap = value as Map<String, dynamic>;
-    //   logModel = parseJson(value as Map<String, dynamic>) as LogModel?;
-    //   if (logModel != null) {
-    //     print(logModel?.actor);
-    //   }
-    // });
-    // if (logModel != null) {
-    //   emit(DataLoadedState(logModel: logModel));
-    // }
+    try {
+      final dynamic result = await networkService.httpRequest(
+          url: largeJsonURL, method: MyHttpMethod.getLargeFile);
+      final ReceivePort receivePortLocal = ReceivePort();
+      await Isolate.spawn(parseLocalJson, <Object>[
+        rootIsolateToken,
+        receivePortLocal.sendPort,
+        result.toString()
+      ]);
+
+      receivePortLocal.listen((dynamic data) async {
+        print('success response');
+        print(data);
+      });
+
+      // print('completed');
+    } catch (e) {
+      print('----');
+      print(e);
+    }
   }
 
-  // Future<LogModel?> parseJson(List<LogModel?> value) async {
-  //   final LogModel? logModel = await compute(LogModel.fromJson, value);
-  //   return logModel;
+  Future<List<LogModel>> newThreadParse(String value) {
+    return compute(_decodeAndParseJson, value);
+  }
+
+  List<LogModel> parseLogModel(String value) {
+    final List<Map<String, dynamic>> parsed =
+        (jsonDecode(value) as List<dynamic>).cast<Map<String, dynamic>>();
+    return parsed
+        .map<LogModel>((Map<String, dynamic> json) => LogModel.fromJson(json))
+        .toList();
+  }
+
+  // Future<List<SearchResult>> parseInBackground(String encodedJson) {
+  //   // compute spawns an isolate, runs a callback on that isolate, and returns a Future with the result
+  //   return compute(_decodeAndParseJson, encodedJson);
   // }
+
+  List<LogModel> _decodeAndParseJson(String encodedJson) {
+    final dynamic jsonData = jsonDecode(encodedJson);
+    final List<dynamic> resultsJson = jsonData as List<dynamic>;
+    return resultsJson
+        .map<LogModel>(
+            (dynamic json) => LogModel.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+}
+
+Future<void> parseLocalJson(List<dynamic> args) async {
+  final RootIsolateToken rootIsolateToken = args[0] as RootIsolateToken;
+  final SendPort sendPort = args[1] as SendPort;
+  final String jsonString = args[2] as String;
+
+  BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
+
+  // final json = jsonDecode(jsonString);
+  final List<Map<String, dynamic>> parsed =
+      (jsonDecode(jsonString) as List<dynamic>).cast<Map<String, dynamic>>();
+  final List<LogModel> logs = parsed
+      .map<LogModel>((Map<String, dynamic> json) => LogModel.fromJson(json))
+      .toList();
+  sendPort.send(logs);
 }

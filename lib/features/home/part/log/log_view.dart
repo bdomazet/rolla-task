@@ -12,7 +12,7 @@ class LogView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<LogViewBloc>(
       create: (BuildContext context) =>
-          getIt<LogViewBloc>()..add(LoadViewEvent()),
+          getIt<LogViewBloc>()..add(LoadLogViewDataEvent()),
       child: BlocConsumer<LogViewBloc, LogViewState>(
         listener: (BuildContext context, LogViewState state) {},
         builder: (BuildContext context, LogViewState state) {

@@ -16,5 +16,6 @@ void configureDependencies() {
   getIt.registerSingleton<HomePageBloc>(HomePageBloc());
   getIt.registerFactory(
       () => ProductsViewBloc(networkService: getIt<NetworkService>()));
-  getIt.registerFactory(() => LogViewBloc());
+  getIt.registerFactory(
+      () => LogViewBloc(networkService: getIt<NetworkService>()));
 }

@@ -17,11 +17,16 @@ class NetworkService {
     'Content-Type': 'application/json'
   };
 
-  Future<dynamic> _get(String url, bool isLargeJson) async => _dio
-          .get(url,
-              options: isLargeJson
-                  ? Options(headers: <String, dynamic>{})
-                  : Options(headers: _headers))
+  Future<dynamic> _get(String url) async => _dio
+          .get(url, options: Options(headers: _headers))
+          .then((Response<dynamic> value) {
+        return _checkResponseStatus(value);
+      }).onError((dynamic error, StackTrace stackTrace) {
+        throw Exception(error);
+      });
+
+  Future<dynamic> _getLargeFile(String url) async => _dio
+          .get(url, options: Options(headers: <String, dynamic>{}))
           .then((Response<dynamic> value) {
         return _checkResponseStatus(value);
       }).onError((dynamic error, StackTrace stackTrace) {
@@ -82,18 +87,20 @@ class NetworkService {
     });
   }
 
-  Future<dynamic> httpRequest(
-      {required String url,
-      required MyHttpMethod method,
-      dynamic data,
-      bool isLargeJson = false}) async {
+  Future<dynamic> httpRequest({
+    required String url,
+    required MyHttpMethod method,
+    dynamic data,
+  }) async {
     switch (method) {
       case MyHttpMethod.get:
-        return _get(url, isLargeJson);
+        return _get(url);
       case MyHttpMethod.post:
         return _post(url, data: data);
       case MyHttpMethod.put:
         return _put(url, data: data);
+      case MyHttpMethod.getLargeFile:
+        return _getLargeFile(url);
     }
   }
 }
