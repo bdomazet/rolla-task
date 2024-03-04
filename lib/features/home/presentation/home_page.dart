@@ -41,7 +41,7 @@ class HomePage extends StatelessWidget {
             if (state is ProductsTabViewState) {
               return const ProductsView();
             } else if (state is LogTabViewState) {
-              return const Center(child: LogView());
+              return const LogView();
             } else {
               return const Center(
                 child: Column(

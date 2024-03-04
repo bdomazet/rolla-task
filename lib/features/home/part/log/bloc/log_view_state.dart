@@ -16,7 +16,7 @@ class LoaderState extends LogViewState {
 
 class DataLoadedState extends LogViewState {
   const DataLoadedState({required this.logModel});
-  final LogModel? logModel;
+  final List<LogModel> logModel;
   @override
   List<Object?> get props => <Object>[];
 }
