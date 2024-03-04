@@ -48,7 +48,6 @@ class HomePage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Text(
-                      // avatar
                       'Rolla task',
                       style: TextStyle(color: Colors.black),
                     ),

@@ -4,7 +4,7 @@ import 'core/services/network_service.dart';
 import 'core/services/secure_storage_service.dart';
 import 'features/auth/bloc/login_page_bloc.dart';
 import 'features/home/bloc/home_page_bloc.dart';
-import 'features/home/part/log/bloc/log_view_bloc.dart';
+import 'features/home/part/log/bloc/log_view_cubit.dart';
 import 'features/home/part/products/bloc/products_view_bloc.dart';
 
 final GetIt getIt = GetIt.instance;
@@ -17,5 +17,5 @@ void configureDependencies() {
   getIt.registerFactory(
       () => ProductsViewBloc(networkService: getIt<NetworkService>()));
   getIt.registerFactory(
-      () => LogViewBloc(networkService: getIt<NetworkService>()));
+      () => LogViewCubit(networkService: getIt<NetworkService>()));
 }

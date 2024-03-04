@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/widgets/loader.dart';
 import '../../../../injection_container.dart';
-import 'bloc/log_view_bloc.dart';
+import 'bloc/log_view_cubit.dart';
 
 class LogView extends StatefulWidget {
   const LogView({super.key});
@@ -16,9 +16,10 @@ class LogView extends StatefulWidget {
 class _LogViewState extends State<LogView> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<LogViewBloc>(
-      create: (BuildContext context) => getIt<LogViewBloc>()..onLoadViewEvent(),
-      child: BlocBuilder<LogViewBloc, LogViewState>(
+    return BlocProvider<LogViewCubit>(
+      create: (BuildContext context) =>
+          getIt<LogViewCubit>()..onLoadViewEvent(),
+      child: BlocBuilder<LogViewCubit, LogViewState>(
         builder: (BuildContext context, LogViewState state) {
           if (state is DataLoadedState) {
             return ListView.builder(

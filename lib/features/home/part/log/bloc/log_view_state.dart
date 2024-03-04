@@ -1,4 +1,4 @@
-part of 'log_view_bloc.dart';
+part of 'log_view_cubit.dart';
 
 abstract class LogViewState extends Equatable {
   const LogViewState();

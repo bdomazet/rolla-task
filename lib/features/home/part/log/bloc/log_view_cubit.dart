@@ -13,8 +13,8 @@ import '../../../../../core/services/network_service.dart';
 
 part 'log_view_state.dart';
 
-class LogViewBloc extends Cubit<LogViewState> {
-  LogViewBloc({required this.networkService}) : super(LogViewInitialState());
+class LogViewCubit extends Cubit<LogViewState> {
+  LogViewCubit({required this.networkService}) : super(LogViewInitialState());
 
   NetworkService networkService;
   final List<LogModel> logModelList = <LogModel>[];
