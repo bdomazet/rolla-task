@@ -11,7 +11,6 @@ import '../../../../../core/enums/my_http_method.dart';
 import '../../../../../core/models/log_model.dart';
 import '../../../../../core/services/network_service.dart';
 
-part 'log_view_event.dart';
 part 'log_view_state.dart';
 
 class LogViewBloc extends Cubit<LogViewState> {
