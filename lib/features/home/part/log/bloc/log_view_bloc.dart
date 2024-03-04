@@ -20,10 +20,12 @@ class LogViewBloc extends Bloc<LogViewEvent, LogViewState> {
   }
 
   NetworkService networkService;
+  final List<LogModel> logModelList = <LogModel>[];
 
   FutureOr<void> onLoadViewEvent(
       LogViewEvent event, Emitter<LogViewState> emit) async {
     emit(LoaderState());
+    final ReceivePort receivePortLocal = ReceivePort();
     final RootIsolateToken? rootIsolateToken = RootIsolateToken.instance;
     if (rootIsolateToken == null) {
       print('Cannot get the RootIsolateToken');
@@ -33,34 +35,25 @@ class LogViewBloc extends Bloc<LogViewEvent, LogViewState> {
     try {
       final dynamic result = await networkService.httpRequest(
           url: largeJsonURL, method: MyHttpMethod.getLargeFile);
-      final ReceivePort receivePortLocal = ReceivePort();
+
       await Isolate.spawn(parseLocalJson, <Object>[
         rootIsolateToken,
         receivePortLocal.sendPort,
         result.toString()
       ]);
-      final List<LogModel> logModelList = <LogModel>[];
       receivePortLocal.listen((dynamic data) async {
         logModelList.addAll(data as List<LogModel>);
       });
-
-      emit(DataLoadedState(logModel: logModelList));
     } catch (e) {
       print('----');
       print(e);
     }
-  }
-
-  List<LogModel> parseLogModel(String value) {
-    final List<Map<String, dynamic>> parsed =
-        (jsonDecode(value) as List<dynamic>).cast<Map<String, dynamic>>();
-    return parsed
-        .map<LogModel>((Map<String, dynamic> json) => LogModel.fromJson(json))
-        .toList();
+    await Future<void>.delayed(const Duration(seconds: 3));
+    emit(DataLoadedState(logModel: logModelList));
   }
 }
 
-Future<void> parseLocalJson(List<dynamic> args) async {
+Future<List<LogModel>> parseLocalJson(List<dynamic> args) async {
   final RootIsolateToken rootIsolateToken = args[0] as RootIsolateToken;
   final SendPort sendPort = args[1] as SendPort;
   final String jsonString = args[2] as String;
@@ -71,4 +64,5 @@ Future<void> parseLocalJson(List<dynamic> args) async {
       .map<LogModel>((Map<String, dynamic> json) => LogModel.fromJson(json))
       .toList();
   sendPort.send(logs);
+  return logs;
 }

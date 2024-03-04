@@ -4,11 +4,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 import '../../../../core/const/const.dart';
-import '../../../../core/models/products_model.dart';
+import '../../../../core/models/products.dart';
 import '../../../../core/widgets/loader.dart';
 import '../../../../core/widgets/my_text_field.dart';
 import '../../../../injection_container.dart';
 import 'bloc/products_view_bloc.dart';
+import 'widgets/product_item.dart';
 
 class ProductsView extends StatefulWidget {
   const ProductsView({super.key});
@@ -20,12 +21,9 @@ class ProductsView extends StatefulWidget {
 class _ProductsViewState extends State<ProductsView> {
   final TextEditingController searchController = TextEditingController();
 
-  late final PagingController<int, List<ProductModel>> _pagingController;
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  late final PagingController<int, Products> _pagingController =
+      PagingController<int, Products>(firstPageKey: 0);
+  int skip = 0;
 
   @override
   void dispose() {
@@ -36,10 +34,11 @@ class _ProductsViewState extends State<ProductsView> {
 
   @override
   Widget build(BuildContext context) {
+    _pagingController.addPageRequestListener((int pageKey) {
+      LoadProductsEvent(limit: pageSize, skip: skip, pageKey: pageKey);
+    });
     return BlocProvider<ProductsViewBloc>(
       create: (BuildContext context) {
-        _pagingController =
-            PagingController<int, List<ProductModel>>(firstPageKey: 0);
         return getIt<ProductsViewBloc>()
           ..add(const LoadProductsEvent(limit: pageSize, skip: 0, pageKey: 0));
       },
@@ -48,13 +47,11 @@ class _ProductsViewState extends State<ProductsView> {
         child: BlocConsumer<ProductsViewBloc, ProductsViewState>(
           listener: (BuildContext context, ProductsViewState state) {
             if (state is AddMoreProductPartsState) {
-              // _pagingController.appendPage(
-              //     state.productModel! as List<List<ProductModel>>,
-              //     state.nextPageKey);
+              _pagingController.appendPage(state.products, state.nextPageKey);
             }
             if (state is LastPartProductState) {
-              // _pagingController.appendLastPage(
-              //     state.productModel! as List<List<ProductModel>>);
+              _pagingController.appendLastPage(state.products);
+              skip = state.skip;
             }
           },
           builder: (BuildContext context, ProductsViewState state) {
@@ -86,63 +83,16 @@ class _ProductsViewState extends State<ProductsView> {
                       padding: EdgeInsets.symmetric(horizontal: 25.w),
                       child: const Divider(),
                     ),
-                    ListView.builder(
-                        physics: const ScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: state.productModel?.products?.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Column(
-                            children: <Widget>[
-                              ListTile(
-                                leading: Text(
-                                  '${state.productModel?.products?[index].id}',
-                                  style: TextStyle(color: Colors.grey[900]),
-                                ),
-                                title: Text(
-                                  '${state.productModel?.products?[index].title}',
-                                  style: TextStyle(color: Colors.grey[800]),
-                                ),
-                                subtitle: Text(
-                                  '${state.productModel?.products?[index].brand}',
-                                  style: TextStyle(color: Colors.grey[700]),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 25.w),
-                                child: const Divider(),
-                              ),
-                            ],
-                          );
-                        }),
-                    // PagedListView<int, ProductModel>(
-                    //   pagingController: _pagingController,
-                    //   builderDelegate: PagedChildBuilderDelegate<ProductModel>(
-                    //     itemBuilder: (BuildContext context, ProductModel item,
-                    //             int index) =>
-                    //         Column(
-                    //       children: <Widget>[
-                    //         ListTile(
-                    //           leading: Text(
-                    //             '${item.products?[index].id}',
-                    //             style: TextStyle(color: Colors.grey[900]),
-                    //           ),
-                    //           title: Text(
-                    //             '${item.products?[index].title}',
-                    //             style: TextStyle(color: Colors.grey[800]),
-                    //           ),
-                    //           subtitle: Text(
-                    //             '${item.products?[index].brand}',
-                    //             style: TextStyle(color: Colors.grey[700]),
-                    //           ),
-                    //         ),
-                    //         Padding(
-                    //           padding: EdgeInsets.symmetric(horizontal: 25.w),
-                    //           child: const Divider(),
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ),
-                    // )
+                    PagedListView<int, Products>(
+                      shrinkWrap: true,
+                      physics: const ScrollPhysics(),
+                      pagingController: _pagingController,
+                      builderDelegate: PagedChildBuilderDelegate<Products>(
+                        itemBuilder:
+                            (BuildContext context, Products item, int index) =>
+                                ProductItem(item: item),
+                      ),
+                    )
                   ],
                 ),
               );

@@ -23,16 +23,18 @@ class LoaderState extends ProductsViewState {
 
 class AddMoreProductPartsState extends ProductsViewState {
   const AddMoreProductPartsState(
-      {required this.productModel, required this.nextPageKey});
+      {required this.skip, required this.products, required this.nextPageKey});
+  final int skip;
   final int nextPageKey;
-  final ProductModel? productModel;
+  final List<Products> products;
   @override
   List<Object?> get props => <Object>[];
 }
 
 class LastPartProductState extends ProductsViewState {
-  const LastPartProductState({required this.productModel});
-  final ProductModel? productModel;
+  const LastPartProductState({required this.skip, required this.products});
+  final int skip;
+  final List<Products> products;
   @override
   List<Object?> get props => <Object>[];
 }

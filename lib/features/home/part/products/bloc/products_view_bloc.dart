@@ -6,6 +6,7 @@ import 'package:rxdart/rxdart.dart';
 
 import '../../../../../core/const/const.dart';
 import '../../../../../core/enums/my_http_method.dart';
+import '../../../../../core/models/products.dart';
 import '../../../../../core/models/products_model.dart';
 import '../../../../../core/services/network_service.dart';
 
@@ -16,6 +17,7 @@ class ProductsViewBloc extends Bloc<ProductsViewEvent, ProductsViewState> {
   ProductsViewBloc({required this.networkService})
       : super(ProductsViewInitialState()) {
     on<LoadProductsEvent>(onLoadProducts);
+    on<LoadMoreProductsEvent>(onLoadMoreProductsEvent);
     on<ReloadAllProductsEvent>(onReloadAllProductsEvent);
     on<SearchProducts>(onSearchProducts, transformer:
         (Stream<SearchProducts> event,
@@ -27,13 +29,14 @@ class ProductsViewBloc extends Bloc<ProductsViewEvent, ProductsViewState> {
   }
 
   NetworkService networkService;
+  int skip = 0;
 
   FutureOr<void> onLoadProducts(
       LoadProductsEvent event, Emitter<ProductsViewState> emit) async {
     ProductModel? productModel;
     await networkService
         .httpRequest(
-            url: '$baseURL/auth/products?limit=$pageSize&skip=${event.skip}',
+            url: '$baseURL/auth/products?limit=$pageSize&skip=$skip',
             method: MyHttpMethod.get)
         .then((dynamic value) {
       productModel = ProductModel.fromJson(value as Map<String, dynamic>);
@@ -43,12 +46,15 @@ class ProductsViewBloc extends Bloc<ProductsViewEvent, ProductsViewState> {
       final int productModelLength = productModel?.products?.length ?? 0;
       final bool isLastPage = productModelLength < pageSize;
       final int nextPageKey = event.pageKey + productModel!.products!.length;
+      final List<Products> products = productModel?.products ?? <Products>[];
+      skip += 15;
       if (isLastPage) {
-        emit(LastPartProductState(productModel: productModel));
+        emit(LastPartProductState(products: products, skip: skip));
       } else {
         emit(AddMoreProductPartsState(
-            productModel: productModel, nextPageKey: nextPageKey));
+            products: products, nextPageKey: nextPageKey, skip: skip));
       }
+      emit(ProductsLoadedState(productModel: productModel));
     }
   }
 
@@ -71,5 +77,11 @@ class ProductsViewBloc extends Bloc<ProductsViewEvent, ProductsViewState> {
     if (productModel != null) {
       emit(ProductsLoadedState(productModel: productModel));
     }
+  }
+
+  FutureOr<void> onLoadMoreProductsEvent(
+      LoadMoreProductsEvent event, Emitter<ProductsViewState> emit) {
+    add(LoadProductsEvent(
+        limit: event.limit, skip: event.skip, pageKey: event.pageKey));
   }
 }

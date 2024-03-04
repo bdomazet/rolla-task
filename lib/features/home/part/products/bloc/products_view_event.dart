@@ -17,6 +17,19 @@ class LoadProductsEvent extends ProductsViewEvent {
   List<Object?> get props => <Object>[limit, skip, pageKey];
 }
 
+class LoadMoreProductsEvent extends ProductsViewEvent {
+  const LoadMoreProductsEvent({
+    required this.limit,
+    required this.skip,
+    required this.pageKey,
+  });
+  final int limit;
+  final int skip;
+  final int pageKey;
+  @override
+  List<Object?> get props => <Object>[limit, skip, pageKey];
+}
+
 class ReloadAllProductsEvent extends ProductsViewEvent {
   @override
   List<Object?> get props => <Object>[];
