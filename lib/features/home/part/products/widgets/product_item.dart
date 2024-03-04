@@ -13,30 +13,32 @@ class ProductItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Text(
-          '${item.id}',
-          style: TextStyle(
-            color: Colors.grey[900],
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 25.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: <Widget>[
+          Text(
+            '${item.id}',
+            style: TextStyle(
+              color: Colors.grey[900],
+            ),
           ),
-        ),
-        Text(
-          '${item.title}',
-          style: TextStyle(
-            color: Colors.grey[800],
+          Text(
+            '${item.title}',
+            style: TextStyle(
+              color: Colors.grey[800],
+            ),
           ),
-        ),
-        Text(
-          '${item.brand}',
-          style: TextStyle(
-            color: Colors.grey[700],
+          Text(
+            '${item.brand}',
+            style: TextStyle(
+              color: Colors.grey[700],
+            ),
           ),
-        ),
-        Padding(
-            padding: EdgeInsets.symmetric(horizontal: 25.w),
-            child: const Divider()),
-      ],
+          const Divider(),
+        ],
+      ),
     );
   }
 }
