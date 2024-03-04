@@ -29,7 +29,6 @@ class LoginPageBloc extends Bloc<LoginPageEvent, LoginPageState> {
                     username: event.username,
                     password: event.password,
                     expiresInMins: event.expiresInMins)
-                // expiresInMins: event.expiresInMins)
                 .toJson())
         .then((dynamic value) => <UserModel>{
               getIt<NetworkService>().currentUser =
