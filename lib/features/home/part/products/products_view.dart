@@ -44,61 +44,90 @@ class _ProductsViewState extends State<ProductsView> {
       },
       child: Container(
         color: Colors.grey[100],
-        child: BlocConsumer<ProductsViewBloc, ProductsViewState>(
-          listener: (BuildContext context, ProductsViewState state) {
-            if (state is AddMoreProductPartsState) {
-              _pagingController.appendPage(state.products, state.nextPageKey);
-            }
-            if (state is LastPartProductState) {
-              _pagingController.appendLastPage(state.products);
-              skip = state.skip;
-            }
-          },
+        child: BlocBuilder<ProductsViewBloc, ProductsViewState>(
           builder: (BuildContext context, ProductsViewState state) {
-            if (state is ProductsLoadedState) {
-              return SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
-                    SizedBox(
-                      height: 20.h,
-                    ),
-                    MyTextField(
-                      controller: searchController,
-                      hintText: 'Search data',
-                      onChanged: (String input) {
-                        if (input.isEmpty) {
-                          context
-                              .read<ProductsViewBloc>()
-                              .add(ReloadAllProductsEvent());
-                        } else {
-                          context.read<ProductsViewBloc>().add(SearchProducts(
-                              searchInput: searchController.text));
-                        }
-                      },
-                    ),
-                    SizedBox(
-                      height: 10.h,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 25.w),
-                      child: const Divider(),
-                    ),
-                    PagedListView<int, Products>(
-                      shrinkWrap: true,
-                      physics: const ScrollPhysics(),
-                      pagingController: _pagingController,
-                      builderDelegate: PagedChildBuilderDelegate<Products>(
-                        itemBuilder:
-                            (BuildContext context, Products item, int index) =>
-                                ProductItem(item: item),
-                      ),
-                    )
-                  ],
-                ),
-              );
-            } else {
+            if (state is LoaderState) {
               return const Loader();
             }
+            return SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(
+                    height: 20.h,
+                  ),
+                  BlocBuilder<ProductsViewBloc, ProductsViewState>(
+                    builder: (BuildContext context, ProductsViewState state) {
+                      return MyTextField(
+                        controller: searchController,
+                        hintText: 'Search data',
+                        onChanged: (String input) {
+                          if (input.isEmpty) {
+                            context
+                                .read<ProductsViewBloc>()
+                                .add(ReloadAllProductsEvent());
+                          } else {
+                            context.read<ProductsViewBloc>().add(SearchProducts(
+                                searchInput: searchController.text));
+                          }
+                        },
+                      );
+                    },
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 25.w),
+                    child: const Divider(),
+                  ),
+                  BlocConsumer<ProductsViewBloc, ProductsViewState>(
+                    listener: (BuildContext context, ProductsViewState state) {
+                      if (state is AddMoreProductPartsState) {
+                        _pagingController.appendPage(
+                            state.products, state.nextPageKey);
+                      }
+                      if (state is LastPartProductState) {
+                        _pagingController.appendLastPage(state.products);
+                        skip = state.skip;
+                      }
+                    },
+                    builder: (BuildContext context, ProductsViewState state) {
+                      if (state is ProductsLoadedState) {
+                        return PagedListView<int, Products>(
+                          shrinkWrap: true,
+                          physics: const ScrollPhysics(),
+                          pagingController: _pagingController,
+                          builderDelegate: PagedChildBuilderDelegate<Products>(
+                            itemBuilder: (BuildContext context, Products item,
+                                    int index) =>
+                                ProductItem(item: item),
+                          ),
+                        );
+                      } else if (state is SearchResultState) {
+                        return SingleChildScrollView(
+                          child: ListView.builder(
+                              physics: const ScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: state.productModel?.products?.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return ListTile(
+                                  leading: Text(
+                                      '${state.productModel?.products?[index].id}'),
+                                  title: Text(
+                                      '${state.productModel?.products?[index].title}'),
+                                  subtitle: Text(
+                                      '${state.productModel?.products?[index].brand}'),
+                                );
+                              }),
+                        );
+                      } else {
+                        return const Loader();
+                      }
+                    },
+                  ),
+                ],
+              ),
+            );
           },
         ),
       ),

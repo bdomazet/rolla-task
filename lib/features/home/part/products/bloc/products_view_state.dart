@@ -16,6 +16,13 @@ class ProductsLoadedState extends ProductsViewState {
   List<Object?> get props => <Object>[];
 }
 
+class SearchResultState extends ProductsViewState {
+  const SearchResultState({required this.productModel});
+  final ProductModel? productModel;
+  @override
+  List<Object?> get props => <Object>[];
+}
+
 class LoaderState extends ProductsViewState {
   @override
   List<Object?> get props => <Object>[];

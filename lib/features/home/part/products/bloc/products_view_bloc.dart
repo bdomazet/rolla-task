@@ -75,7 +75,7 @@ class ProductsViewBloc extends Bloc<ProductsViewEvent, ProductsViewState> {
       productModel = ProductModel.fromJson(value as Map<String, dynamic>);
     });
     if (productModel != null) {
-      emit(ProductsLoadedState(productModel: productModel));
+      emit(SearchResultState(productModel: productModel));
     }
   }
 
