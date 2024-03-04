@@ -14,16 +14,13 @@ import '../../../../../core/services/network_service.dart';
 part 'log_view_event.dart';
 part 'log_view_state.dart';
 
-class LogViewBloc extends Bloc<LogViewEvent, LogViewState> {
-  LogViewBloc({required this.networkService}) : super(LogViewInitialState()) {
-    on<LoadLogViewDataEvent>(onLoadViewEvent);
-  }
+class LogViewBloc extends Cubit<LogViewState> {
+  LogViewBloc({required this.networkService}) : super(LogViewInitialState());
 
   NetworkService networkService;
   final List<LogModel> logModelList = <LogModel>[];
 
-  FutureOr<void> onLoadViewEvent(
-      LogViewEvent event, Emitter<LogViewState> emit) async {
+  FutureOr<void> onLoadViewEvent() async {
     emit(LoaderState());
     final ReceivePort receivePortLocal = ReceivePort();
     final RootIsolateToken? rootIsolateToken = RootIsolateToken.instance;
@@ -41,15 +38,13 @@ class LogViewBloc extends Bloc<LogViewEvent, LogViewState> {
         receivePortLocal.sendPort,
         result.toString()
       ]);
-      receivePortLocal.listen((dynamic data) async {
-        logModelList.addAll(data as List<LogModel>);
-      });
     } catch (e) {
       print('----');
       print(e);
     }
-    await Future<void>.delayed(const Duration(seconds: 3));
-    emit(DataLoadedState(logModel: logModelList));
+    receivePortLocal.listen((dynamic data) async {
+      emit(DataLoadedState(logModel: data as List<LogModel>));
+    });
   }
 }
 

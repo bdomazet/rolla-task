@@ -17,8 +17,7 @@ class _LogViewState extends State<LogView> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<LogViewBloc>(
-      create: (BuildContext context) =>
-          getIt<LogViewBloc>()..add(LoadLogViewDataEvent()),
+      create: (BuildContext context) => getIt<LogViewBloc>()..onLoadViewEvent(),
       child: BlocBuilder<LogViewBloc, LogViewState>(
         builder: (BuildContext context, LogViewState state) {
           if (state is DataLoadedState) {
