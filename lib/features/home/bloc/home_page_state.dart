@@ -18,9 +18,3 @@ class LogTabViewState extends HomePageState {
   @override
   List<Object> get props => <Object>[];
 }
-
-// class ProductsLoadedState extends HomePageState {
-//   ProductModel productModel;
-//   @override
-//   List<Object> get props => <Object>[];
-// }
